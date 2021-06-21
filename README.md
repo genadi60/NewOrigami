@@ -4,6 +4,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+In the rest-api directory, you can run:
+
+### `yarn start`
+
+Open [http://localhost:9999](http://localhost:9999) to view it in the browser.
+
 In the project directory, you can run:
 
 ### `yarn start`
