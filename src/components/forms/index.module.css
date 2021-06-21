@@ -1,0 +1,10 @@
+.Login, .Register {
+    width: 100%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.error {
+    text-align: center;
+    color: red;
+  }
