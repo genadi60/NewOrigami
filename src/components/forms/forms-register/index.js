@@ -21,8 +21,6 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        const { username, password, repassword } = this.state;
-
         if (!username || !password || !repassword) {
            return setError('Invalid input(s)')
         }

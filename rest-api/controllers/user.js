@@ -1,6 +1,5 @@
 const models = require('../models');
 const { User } = models;
-//const config = require('../config/config');
 const utils = require('../utils');
 
 module.exports = {
@@ -86,18 +85,6 @@ module.exports = {
                 })
                 .catch(next);
         },
-
-        // logout: (req, res, next) => {
-        //     const token = req.cookies[config.authCookieName];
-        //     console.log('-'.repeat(100));
-        //     console.log(token);
-        //     console.log('-'.repeat(100));
-        //     TokenBlacklist.create({ token })
-        //         .then(() => {
-        //             res.clearCookie(config.authCookieName).send('Logout successfully!');
-        //         })
-        //         .catch(next);
-        // }
     },
 
     put: {
