@@ -9,8 +9,7 @@ const Aside = () => {
 
     const context = useContext(UserContext);
 
-    const { user } = context;
-    const links = Links(user);
+    const links = Links(context.user);
     return(
         <aside className={styles.aside}>
             <ul>

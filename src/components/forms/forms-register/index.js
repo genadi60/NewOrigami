@@ -1,5 +1,5 @@
-import React, { Component} from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import styles from '../index.module.css';
 import Input from '../../form-components/input';
 import Title from '../../form-components/title';
@@ -7,36 +7,28 @@ import Button from '../../form-components/button';
 import authenticate from '../../../utils/authenticate';
 import UserContext from '../../../Context';
 
-class Register extends Component {
+const Register = () => {
 
-    constructor(props) {
-        super(props);
+    const history = useHistory();
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [repassword, setRepassword] = useState('');
+    const [error, setError] = useState('');
+  
 
-        this.state = {
-            username: '',
-            password: '',
-            repassword: '',
-            error: '',
-        }
-    }
+    const context = useContext(UserContext);
 
-    static contextType = UserContext;
-
-    handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         const { username, password, repassword } = this.state;
 
         if (!username || !password || !repassword) {
-           return this.setState({
-                error: 'Invalid input(s)'
-            })
+           return setError('Invalid input(s)')
         }
 
         if (password.localeCompare(repassword) !== 0) {
-            return this.setState({
-                error: 'Password and Re-password not match'
-            })
+            return setError('Password and Re-password not match')
         }
 
         await authenticate(
@@ -44,40 +36,44 @@ class Register extends Component {
                 username,
                 password 
             }, (user) => {
-                this.context.logIn(user);
-                this.props.history.push('/');
+                context.logIn(user);
+                history.push('/');
             }, (e) => {
-                this.setState({
-                    error: e.message
-                })
+                setError(e.message)
             }
         )
 
     }
 
-    handleChange = (e, type) => {
-        const newState = {};
-        newState[type] = e.target.value;
-        this.setState(newState);
+    const handleChange = (e, type) => {
+        const value = e.target.value;
+        switch (type) {
+            case 'username':
+                setUsername(value);
+                break;
+            case 'password':
+                setPassword(value);
+                break;
+            case 'repassword':
+                setRepassword(value);
+                break;
+            default:
+                break;
+        }
     }
 
-    render() {
-
-        const { username, password, repassword, error } = this.state;
-        return(
-            <div className={styles.Register}>
-                <Title title="Register page"/>
-                <form onSubmit={this.handleSubmit}>
-                    <Input type="text" name="username" id="username" value={username} label="Username" onChange={(e) => this.handleChange(e, "username")}/>
-                    <Input type="password" name="password" id="password" value={password} label="Password" onChange={(e) => this.handleChange(e, "password")}/>
-                    <Input type="password" name="repassword" id="repassword" value={repassword} label="Re-password" onChange={(e) => this.handleChange(e, "repassword")}/>
-                    { error ? <div className={styles.error}><p>{error}</p></div> : null }
-                    <Button type="submit" title="Register" />
-                </form>
-            </div>
-        );
-    }
-    
+    return(
+        <div className={styles.Register}>
+            <Title title="Register page"/>
+            <form onSubmit={handleSubmit}>
+                <Input type="text" name="username" id="username" value={username} label="Username" onChange={(e) => handleChange(e, "username")}/>
+                <Input type="password" name="password" id="password" value={password} label="Password" onChange={(e) => handleChange(e, "password")}/>
+                <Input type="password" name="repassword" id="repassword" value={repassword} label="Re-password" onChange={(e) => handleChange(e, "repassword")}/>
+                { error ? <div className={styles.error}><p>{error}</p></div> : null }
+                <Button type="submit" title="Register" />
+            </form>
+        </div>
+    );
 }
 
-export default withRouter(Register);
+export default Register;

@@ -20,6 +20,7 @@ class Profile extends Component {
 
     logOut = () => {
         this.context.logOut();
+        this.props.history.push('/');
     }
 
     componentDidMount(){

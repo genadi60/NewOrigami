@@ -10,7 +10,7 @@ const hasCookie = (cookieName) => {
 };
 
 const getToken = (promise) => {
-    return promise.headers.get('Authorization').split(' ')[1];
+    return promise.headers.get('Authorization') ? promise.headers.get('Authorization').split(' ')[1] : null;
 }
 
 const authenticate = async (url, body, onSuccess, onError) => {

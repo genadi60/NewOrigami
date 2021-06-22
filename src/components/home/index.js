@@ -1,16 +1,14 @@
-import React, { Component }from 'react';
+import React from 'react';
 import Posts from '../posts';
 
-class Home extends Component {
+const Home = () => {
 
-    render() {
-        return(
-            <main>
-                <h1>Publications</h1>
-                <Posts/>
-            </main>
-        );
-    }
+    return(
+        <main>
+            <h1>Publications</h1>
+            <Posts/>
+        </main>
+    );
 }
 
 export default Home;
