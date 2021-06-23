@@ -1,80 +1,66 @@
-import React, { Component }from 'react';
-import { withRouter } from 'react-router-dom';
+import { useState, useEffect, useContext }from 'react';
+import { useHistory } from 'react-router-dom';
 import styles from './index.module.css';
 import Post from '../post';
 import Button from '../form-components/button';
 import UserContext from '../../Context'
 
-class Profile extends Component {
+const Profile = () => {
 
-    constructor(props) {
-        super(props);
+    const [user, setUser] = useState(null);
+    const [posts, setPosts] = useState(null);
+    const history = useHistory();
+    const context = useContext(UserContext);
 
-        this.state = {
-            user: null,
-            posts: null,
-        }
-    }
-
-    static contextType = UserContext;
-
-    logOut = () => {
-        this.context.logOut();
-        this.props.history.push('/');
-    }
-
-    componentDidMount(){
-        const user = this.context.user;
+    
+    useEffect(() => {
+        const user = context.user;
         if (!user) {
-            this.setState({
-                user: undefined,
-                posts: [],
-            })
-            this.props.history.push('/');
+            setUser(undefined);
+            setPosts([]);
+            history.push('/');
         }else{
-            this.setState({
-                user,
-                posts: user.posts.slice(0, 3),
-            })
+            setUser(user);
+            setPosts(user.posts.slice(0, 3));
         }
+        // eslint-disable-next-line
+    }, []);
+
+    const logOut = () => {
+        context.logOut();
+        history.push('/');
     }
 
-    renderPosts = () => {
-        const { user, posts } = this.state;
+    const renderPosts = () => {
         return posts.length === 0 ? (<div>No posts available</div>) : posts.map((post, index) => {
-            return<Post key={post._id} index={index} description={post.description} author={ user ? user.username : null }/>
+            return<Post key={ post._id } index={ index } description={ post.description } author={ user ? user.username : null }/>
         });
     }
 
-    render() {
-
-        const { user } = this.state;
-
-        if (user === null) {
-            return (<div>Loading...</div>);
-        }
-
-        return(
-            <div className={ styles.Profile }>
-                <img src="/person-bounding-box.png" alt="Person frame"/>
-                <div className={ styles['personal-info'] }>
-                    <p >
-                        <span>Username: </span>
-                        { user.username }
-                    </p>
-                    <p>
-                        <span>Posts: </span>
-                        { user.posts.length }
-                    </p>
-                </div>
-                <Button type="button" title="Logout" onClick={this.logOut}/>
-                <div className={ styles.posts }>
-                    <h2>3 of your recent posts</h2>
-                    { this.renderPosts() }
-                </div>
-            </div>
-        );
+    if (user === null) {
+        return (<div>Loading...</div>);
     }
+
+    return(
+        <div className={ styles.Profile }>
+            <img src="/person-bounding-box.png" alt="Person frame"/>
+            <div className={ styles['personal-info'] }>
+                <p >
+                    <span>Username: </span>
+                    { user.username }
+                </p>
+                <p>
+                    <span>Posts: </span>
+                    { user.posts.length }
+                </p>
+            </div>
+            <Button type="button" title="Logout" onClick={ logOut }/>
+            <div className={ styles.posts }>
+                <h2>3 of your recent posts</h2>
+                { renderPosts() }
+            </div>
+        </div>
+    );
 }
 
-export default withRouter(Profile);
+export default Profile;

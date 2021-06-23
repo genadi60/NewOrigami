@@ -1,123 +1,93 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useState, useEffect, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import Post from '../post';
 import styles from './index.module.css';
 import Button from '../form-components/button';
 import Title from '../form-components/title';
 import UserContext from '../../Context';
 
-class SharePost extends Component {
+const SharePost = () => {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            user: null,
-            posts: null,
-            description: '',
-            error: null
-        }
-    }
-
-    static contextType = UserContext;
+    const [user, setUser] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [error, setError] = useState(null);
+    const history = useHistory();
+    const context = useContext(UserContext);
     
 
-    getPosts = () => {
-        const user = this.context.user;
-        if (user === null) {
-            this.setState({
-                user: undefined,
-                posts: [],
-            })
-            this.props.history.push('/');
+    useEffect(() => {
+        getPosts();
+    // eslint-disable-next-line    
+    }, []);
+
+    const getPosts = () => {
+        const user = context.user;
+        if (!user) {
+            setUser(undefined);
+            setPosts([]);
+            history.push('/');
         }else{
-            this.setState({
-                user,
-                posts: user.posts.slice((user.posts.length - 3) >= 0 ? (user.posts.length - 3) : 0).reverse(),
-            })
+            setUser(user);
+            setPosts(user.posts.slice((user.posts.length - 3)).reverse());
         }
     }
 
-    componentDidMount() {
-        this.getPosts();
-    }
-
-    handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const description  = e.target.description.value;
 
-        const { error } = this.state;
-
         if (!error && !description) {
-            this.setState( 
-                {error: 'Invalid input'}
-            );
-            return this.getPosts();
+            setError('Invalid input');
+            return getPosts();
         }
         
-        const id = this.state.user._id;
-    
+        const id = user._id;
         const token = document.cookie.split('=')[1]
         
         const promise = await fetch("http://localhost:9999/api/origami", {
             method: 'POST',
             body: JSON.stringify({ description, author: id}),
             headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         const response = await promise.json();
         if (response.username) {
             e.target.description.value = '';
-            this.context.user = response;
-            this.getPosts();
+            context.user = response;
+            getPosts();
         }
          
     }
 
-    componentDidUpdate(prevState){
-        if ( prevState.posts !== null && prevState.posts !== undefined && prevState.posts !== this.state.posts) {
-            this.render();
-          }
-    }
-
-    renderPosts = () => {
-        const { posts } = this.state;
+    const renderPosts = () => {
         return posts.map((post, index) => {
             return (
-                <Post key={post._id} index={index} description={post.description} author={this.context.user.username}/>
+                <Post key={post._id} index={index} description={post.description} author={user.username}/>
                 );
         });
     }
 
-    renderPage = () => {
-        const { user, posts, error } = this.state;
-        if (user === null) {
-            return (<div>Loading...</div>);
-        }
-        return (
-            <div className={styles.Input}>
-                <Title title="Share your thoughts..."/>
-                <form onSubmit={this.handleSubmit}>
-                    <textarea type="text" name="description"></textarea>
-                    { error ? <div className={styles.error}><p>{error}</p></div> : null }
-                    <Button type="submit" title='Post'/>
-                </form>
-                <div className={styles.posts}>
-                    <h2>Last 3 posts on your wall</h2>
-                    { posts.length === 0 ? (<div>No posts available</div>) : this.renderPosts()}
-                </div>
-            </div>
-        );
-    }
-
-    render() {
-
-        return this.renderPage();
-    }
     
+    if (user === null) {
+        return (<div>Loading...</div>);
+    }
+    return (
+        <div className={styles.Input}>
+            <Title title="Share your thoughts..."/>
+            <form onSubmit={handleSubmit}>
+                <textarea type="text" name="description"></textarea>
+                { error ? <div className={styles.error}><p>{error}</p></div> : null }
+                <Button type="submit" title='Post'/>
+            </form>
+            <div className={styles.posts}>
+                <h2>Last 3 posts on your wall</h2>
+                { posts.length === 0 ? (<div>No posts available</div>) : renderPosts()}
+            </div>
+        </div>
+    );
 }
 
-export default withRouter(SharePost);
+export default SharePost;
